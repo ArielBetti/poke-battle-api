@@ -17,9 +17,9 @@ class CreateUserController extends BaseController {
     @httpPost("/")
     execute(
         @requestBody() data: ICreateUserDTO,
-        @response() res: any,
-    ): ICreateUserResponseDTO {
-        return this.callUseCase(
+        @response() res: ICreateUserResponseDTO,
+    ): any {
+        return this.callUseCaseAsync(
             this.createUserUseCase.execute(data),
             res,
             StatusCode.Created,
