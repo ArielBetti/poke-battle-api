@@ -6,6 +6,7 @@ const ENV = {
         APP_VERSION: pkg.version,
         ENVIRONMENT: process.env.ENVIRONMENT as string,
         PORT: Number(process.env.PORT),
+        JWT_KEY: process.env.JWT_KEY as string,
     },
     Log: {
         FILE: process.env.FILE as string,
