@@ -12,8 +12,20 @@ datasource db {
 }
 
 model User {
-  id    String     @id @default(uuid())
-  email String  @unique
-  name  String
+  id       String    @id @default(uuid())
+  email    String    @unique
+  name     String
   password String
+  History  History[]
+}
+
+model History {
+  id       String   @id @default(uuid())
+  player   User     @relation(fields: [playerId], references: [id])
+  playerId String // relation scalar field  (used in the `@relation` attribute above)
+  userName String
+  logs     String[] @default([])
+  winner   Boolean
+  pokemon1 String
+  pokemon2 String
 }
