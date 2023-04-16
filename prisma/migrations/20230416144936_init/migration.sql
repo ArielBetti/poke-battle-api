@@ -11,12 +11,15 @@ CREATE TABLE "User" (
 -- CreateTable
 CREATE TABLE "History" (
     "id" TEXT NOT NULL,
+    "log" JSONB[],
     "playerId" TEXT NOT NULL,
     "userName" TEXT NOT NULL,
-    "logs" TEXT[] DEFAULT ARRAY[]::TEXT[],
     "winner" BOOLEAN NOT NULL,
     "pokemon1" TEXT NOT NULL,
     "pokemon2" TEXT NOT NULL,
+    "winnerName" TEXT NOT NULL,
+    "loserName" TEXT NOT NULL,
+    "isDraw" BOOLEAN NOT NULL,
 
     CONSTRAINT "History_pkey" PRIMARY KEY ("id")
 );

@@ -1,5 +1,6 @@
 import { provide } from "inversify-binding-decorators";
 import {
+    IPokebattleBattleLogResponseDTO,
     IPokebattleBattleRequestDTO,
     IPokebattleBattleResponseDTO,
 } from "./pokebattle-battle.dto";
@@ -31,7 +32,7 @@ class PokebattleBattleUseCase {
         const { pokemon1, pokemon2 } = body;
         const onFight = async (): Promise<IPokebattleBattleResponseDTO> => {
             // Log da batalha
-            const battleLog = [] as string[];
+            const battleLog = [] as IPokebattleBattleLogResponseDTO[];
             // Define a variável de turno
             let turn = 0;
 
@@ -48,7 +49,7 @@ class PokebattleBattleUseCase {
                     game_indices?: GameIndices[];
                     height?: number;
                     held_items?: any[];
-                    id?: number;
+                    id: number;
                     is_default?: boolean;
                     location_area_encounters?: string;
                     moves: any;
@@ -68,7 +69,7 @@ class PokebattleBattleUseCase {
                     game_indices?: GameIndices[];
                     height?: number;
                     held_items?: any[];
-                    id?: number;
+                    id: number;
                     is_default?: boolean;
                     location_area_encounters?: string;
                     moves?: PokemonMoves[];
@@ -90,9 +91,6 @@ class PokebattleBattleUseCase {
                     attacker.moves[move_index].move.url,
                 );
                 const move = await move_response.json();
-
-                // Imprime o movimento utilizado
-                battleLog.push(`${attacker.name} usou ${move?.name}!`);
 
                 // Obtém as informações dos tipos dos Pokémons
                 const defender_types = defender.types.map(
@@ -128,8 +126,15 @@ class PokebattleBattleUseCase {
                 // Aplica o dano ao Pokémon defensor
                 defender.stats[0].base_stat -= damage;
 
-                // Imprime o dano causado
-                battleLog.push(`${defender.name} recebeu ${damage} de dano!`);
+                // Atualiza o log
+                battleLog.push({
+                    attack: move?.name,
+                    attacker: attacker.name,
+                    defender: defender.name,
+                    damage,
+                    attackType: attacker.types?.[0].type.name || "undefined",
+                    turn,
+                });
             }
 
             // Enquanto ambos os Pokémons estiverem vivos, eles continuam lutando
@@ -142,18 +147,16 @@ class PokebattleBattleUseCase {
 
                 // Verifica se Pokémon 2 ainda está vivo
                 if (pokemon2.stats[0].base_stat <= 0) {
-                    battleLog.push(`${pokemon2.name} desmaiou!`);
-                    battleLog.push(
-                        `${pokemon1.name} venceu a batalha em ${turn} turnos!`,
-                    );
-
                     return {
-                        logs: battleLog,
+                        log: battleLog,
                         playerId: id,
                         pokemon1: pokemon1.name,
                         pokemon2: pokemon2.name,
                         userName: name,
                         winner: true,
+                        winnerName: pokemon1.name,
+                        loserName: pokemon2.name,
+                        isDraw: false,
                     };
                 }
                 // Pokémon 2 ataca Pokémon 1
@@ -161,31 +164,29 @@ class PokebattleBattleUseCase {
 
                 // Verifica se Pokémon 1 ainda está vivo
                 if (pokemon1.stats[0].base_stat <= 0) {
-                    battleLog.push(`${pokemon1.name} desmaiou!`);
-                    battleLog.push(
-                        `${pokemon2.name} venceu a batalha em ${turn} turnos!`,
-                    );
-
                     return {
-                        logs: battleLog,
+                        log: battleLog,
                         playerId: id,
                         pokemon1: pokemon1.name,
                         pokemon2: pokemon2.name,
                         userName: name,
                         winner: false,
+                        winnerName: pokemon2.name,
+                        loserName: pokemon1.name,
+                        isDraw: false,
                     };
                 }
             }
-            // Caso os dois Pokémons tenham desmaiado ao mesmo tempo, o resultado é um empate
-            battleLog.push(`A batalha terminou em empate após ${turn} turnos!`);
-
             return {
-                logs: battleLog,
+                log: battleLog,
                 playerId: id,
                 pokemon1: pokemon1.name,
                 pokemon2: pokemon2.name,
                 userName: name,
                 winner: false,
+                loserName: pokemon1.name,
+                winnerName: pokemon2.name,
+                isDraw: true,
             };
         };
 

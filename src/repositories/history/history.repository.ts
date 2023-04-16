@@ -5,6 +5,7 @@ import { IHistoryDTO } from "./history.dto";
 import { History } from "@entities/history.entity";
 
 import { mapHistoryToPrisma } from "@providers/helpers/mapToPrisma";
+import { randomUUID } from "crypto";
 
 @provide(HistoryRepository)
 class HistoryRepository implements IHistoryRepository {
@@ -13,11 +14,21 @@ class HistoryRepository implements IHistoryRepository {
     async findAll(id: string): Promise<IHistoryDTO[]> {
         const historys = await this.repository.history.findMany({
             where: {
-                id,
+                playerId: id,
             },
         });
 
-        return historys.map((history) => this.mapToDTO(history));
+        return historys.map((history) => {
+            const log = history.log as {
+                turn: number;
+                attacker: string;
+                defender: string;
+                attack: string;
+                attackType: string;
+                damage: number;
+            }[];
+            return this.mapToDTO({ ...history, log });
+        });
     }
 
     async create(history: IHistoryDTO): Promise<History> {
@@ -26,17 +37,31 @@ class HistoryRepository implements IHistoryRepository {
                 ...history,
             }),
         });
-        return this.mapToDTO(createHistory);
+
+        const log = createHistory.log as {
+            turn: number;
+            attacker: string;
+            defender: string;
+            attack: string;
+            attackType: string;
+            damage: number;
+        }[];
+
+        return this.mapToDTO({ ...createHistory, log });
     }
 
     private mapToDTO(history: IHistoryDTO): History {
         const newHistory = new History(
-            history.logs,
+            history.log,
             history.userName,
             history.playerId,
             history.winner,
             history.pokemon1,
             history.pokemon2,
+            history.id || randomUUID(),
+            history.winnerName,
+            history.loserName,
+            history.isDraw,
         );
         return newHistory;
     }

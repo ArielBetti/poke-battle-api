@@ -20,12 +20,15 @@ model User {
 }
 
 model History {
-  id       String   @id @default(uuid())
-  player   User     @relation(fields: [playerId], references: [id])
-  playerId String // relation scalar field  (used in the `@relation` attribute above)
-  userName String
-  logs     String[] @default([])
-  winner   Boolean
-  pokemon1 String
-  pokemon2 String
+  id         String    @id @default(uuid())
+  player     User      @relation(fields: [playerId], references: [id])
+  log        Json[]
+  playerId   String // relation scalar field  (used in the `@relation` attribute above)
+  userName   String
+  winner     Boolean
+  pokemon1   String
+  pokemon2   String
+  winnerName String
+  loserName  String
+  isDraw     Boolean
 }

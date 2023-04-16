@@ -5,14 +5,30 @@ interface IPokebattleBattleRequestDTO {
     pokemon2: TPokemonContentEndpoint;
 }
 
+interface IPokebattleBattleLogResponseDTO {
+    turn: number;
+    attacker: string;
+    defender: string;
+    attack: string;
+    attackType: string;
+    damage: number;
+}
+
 interface IPokebattleBattleResponseDTO {
     id?: string;
     userName: string;
     playerId: string;
     pokemon1: string;
     pokemon2: string;
-    logs: string[];
+    log: IPokebattleBattleLogResponseDTO[];
     winner: boolean;
+    winnerName: string;
+    loserName: string;
+    isDraw: boolean;
 }
 
-export { IPokebattleBattleRequestDTO, IPokebattleBattleResponseDTO };
+export {
+    IPokebattleBattleLogResponseDTO,
+    IPokebattleBattleRequestDTO,
+    IPokebattleBattleResponseDTO,
+};
